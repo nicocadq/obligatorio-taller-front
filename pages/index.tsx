@@ -65,7 +65,7 @@ const Home: NextPage = () => {
     fetch("http://localhost:8080/configure-humidity", {
       method: "POST",
       body: JSON.stringify({
-        humidity: Math.round(humidity * 100),
+        humidity: Math.round(humidity * 100).toString(),
       }),
       headers: {
         ["Content-Type"]: "application/json",
@@ -82,7 +82,7 @@ const Home: NextPage = () => {
     fetch("http://localhost:8080/configure-temperature", {
       method: "POST",
       body: JSON.stringify({
-        humidity: Math.round(temperature * 100),
+        temperature: Math.round(temperature * 100).toString(),
       }),
       headers: {
         ["Content-Type"]: "application/json",
