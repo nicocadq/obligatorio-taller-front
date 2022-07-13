@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent, useState } from "react";
+import { useCallback, MouseEvent, useState, useEffect } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -102,6 +102,33 @@ const Home: NextPage = () => {
       .then((response) => response.json())
       .then(console.log)
       .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const getData = () => {
+      fetch("http://localhost:8080/actualData")
+        .then((response) => response.json())
+        .then((formattedResponse) =>
+          console.log({
+            temperature: formattedResponse[0],
+            humidity: formattedResponse[1],
+          })
+        )
+        .catch(console.error);
+    };
+
+    getData();
+  }, []);
+
+  useEffect(() => {
+    const getData = () => {
+      fetch("http://localhost:8080/time")
+        .then((response) => response.json())
+        .then((formattedResponse) => console.log({ formattedResponse }))
+        .catch(console.error);
+    };
+
+    getData();
   }, []);
 
   return (
