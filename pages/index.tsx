@@ -140,6 +140,60 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <Grid.Container gap={2} justify="center" css={{ marginBlock: "2rem" }}>
+          <Grid xs={3} direction="column" justify="center">
+            <Text
+              b
+              css={{
+                textAlign: "center",
+              }}
+            >
+              34 %
+            </Text>
+            <Text
+              css={{
+                textAlign: "center",
+              }}
+            >
+              Humidity
+            </Text>
+          </Grid>
+          <Grid xs={3} direction="column" justify="center">
+            <Text
+              b
+              css={{
+                textAlign: "center",
+              }}
+            >
+              34 °C
+            </Text>
+            <Text
+              css={{
+                textAlign: "center",
+              }}
+            >
+              Temperature
+            </Text>
+          </Grid>
+          <Grid xs={3} direction="column" justify="center">
+            <Text
+              b
+              css={{
+                textAlign: "center",
+              }}
+            >
+              5 mins
+            </Text>
+            <Text
+              css={{
+                textAlign: "center",
+              }}
+            >
+              Last time watered
+            </Text>
+          </Grid>
+        </Grid.Container>
+
         <h1 className={styles.title}>
           Welcome to <span>GreenHouse!</span>
         </h1>
