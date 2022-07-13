@@ -32,6 +32,7 @@ const Home: NextPage = () => {
 
   const [humidity, setHumidity] = useState(0);
   const [temperature, setTemperature] = useState(0);
+  const [minutesLastIrrigate, setMinutes] = useState(0);
 
   const onHumidityCheckChange = useCallback((event: SwitchEvent) => {
     console.log("Humidity check:", event.target.checked);
@@ -112,6 +113,7 @@ const Home: NextPage = () => {
           console.log({
             temperature: formattedResponse[0],
             humidity: formattedResponse[1],
+            minutesLastIrrigate: formattedResponse[2],
           })
         )
         .catch(console.error);
@@ -148,7 +150,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              34 %
+              {humidity} %
             </Text>
             <Text
               css={{
@@ -165,7 +167,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              34 °C
+              {temperature} °C
             </Text>
             <Text
               css={{
@@ -182,7 +184,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              5 mins
+              {minutesLastIrrigate} mins
             </Text>
             <Text
               css={{
