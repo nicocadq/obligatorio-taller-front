@@ -12,6 +12,7 @@ import {
   Switch,
   SwitchEvent,
   Modal,
+  Input,
 } from "@nextui-org/react";
 import {
   CircularInput,
@@ -22,6 +23,7 @@ import {
 
 import Humidity from "assets/humidity.png";
 import Temperature from "assets/temperature.png";
+import TimeInterval from "assets/time-interval.png";
 import WateringCan from "assets/watering-can.png";
 
 import styles from "styles/Home.module.css";
@@ -29,6 +31,7 @@ import styles from "styles/Home.module.css";
 const Home: NextPage = () => {
   const [isHumidityModalOpen, setIsHumidityModalOpen] = useState(false);
   const [isTemperatureModalOpen, setIsTemperatureModalOpen] = useState(false);
+  const [isTimeIntervalModalOpen, setIsTimeIntervalModalOpen] = useState(false);
 
   const [humidity, setHumidity] = useState(0);
   const [temperature, setTemperature] = useState(0);
@@ -105,6 +108,28 @@ const Home: NextPage = () => {
       .catch(console.error);
   }, []);
 
+  const openConfigureIntervalModal = useCallback(() => {
+    setIsTimeIntervalModalOpen(true);
+  }, []);
+
+  const closeConfigureIntervalModal = useCallback(() => {
+    setIsTimeIntervalModalOpen(false);
+  }, []);
+
+  const onIntervalSubmit = useCallback(() => {
+    fetch("http://localhost:8080/configure-interval", {
+      method: "POST",
+      body: JSON.stringify({
+        interval: "10",
+      }),
+    })
+      .then((response) => response.json())
+      .then(console.log)
+      .catch(console.error);
+
+    closeConfigureIntervalModal();
+  }, [closeConfigureIntervalModal]);
+
   useEffect(() => {
     const getData = () => {
       fetch("http://localhost:8080/actualData")
@@ -142,6 +167,28 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <Container
+          display="flex"
+          justify="flex-end"
+          css={{ width: "100%", paddingRight: "17rem" }}
+        >
+          <Button
+            color="secondary"
+            auto
+            bordered
+            icon={
+              <Image
+                src={TimeInterval}
+                alt="Time Interval"
+                height={25}
+                width={25}
+              />
+            }
+            onPress={openConfigureIntervalModal}
+          >
+            Configure Time Interval
+          </Button>
+        </Container>
         <Grid.Container gap={2} justify="center" css={{ marginBlock: "2rem" }}>
           <Grid xs={3} direction="column" justify="center">
             <Text
@@ -359,6 +406,38 @@ const Home: NextPage = () => {
           </Modal.Body>
           <Modal.Footer justify="center">
             <Button color="primary" onPress={onTemperatureSubmit}>
+              Save
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal
+          closeButton
+          blur
+          aria-labelledby="modal-title"
+          open={isTimeIntervalModalOpen}
+          onClose={closeConfigureIntervalModal}
+        >
+          <Modal.Header>
+            <Text h3>Configure Time Interval</Text>
+          </Modal.Header>
+          <Modal.Body>
+            <Container
+              display="flex"
+              alignItems="center"
+              justify="center"
+              css={{ p: "1rem" }}
+            >
+              <Input
+                label="Interval (in mins)"
+                placeholder="5"
+                type="number"
+                labelRight="mins"
+              />
+            </Container>
+          </Modal.Body>
+          <Modal.Footer justify="center">
+            <Button color="primary" onPress={onIntervalSubmit}>
               Save
             </Button>
           </Modal.Footer>
