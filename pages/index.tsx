@@ -1,4 +1,10 @@
-import { useCallback, MouseEvent, useState, useEffect } from "react";
+import {
+  useCallback,
+  MouseEvent,
+  useState,
+  useEffect,
+  ChangeEvent,
+} from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -13,6 +19,7 @@ import {
   SwitchEvent,
   Modal,
   Input,
+  FormElement,
 } from "@nextui-org/react";
 import {
   CircularInput,
@@ -28,21 +35,52 @@ import WateringCan from "assets/watering-can.png";
 
 import styles from "styles/Home.module.css";
 
+interface CurrentData {
+  temperature: string;
+  humidity: string;
+  mins: string;
+}
+
 const Home: NextPage = () => {
   const [isHumidityModalOpen, setIsHumidityModalOpen] = useState(false);
   const [isTemperatureModalOpen, setIsTemperatureModalOpen] = useState(false);
   const [isTimeIntervalModalOpen, setIsTimeIntervalModalOpen] = useState(false);
 
+  const [currentData, setCurrentData] = useState<CurrentData>();
+
   const [humidity, setHumidity] = useState(0);
   const [temperature, setTemperature] = useState(0);
-  const [minutesLastIrrigate, setMinutes] = useState(0);
+
+  const [timeInterval, setTimeInterval] = useState<string>();
 
   const onHumidityCheckChange = useCallback((event: SwitchEvent) => {
-    console.log("Humidity check:", event.target.checked);
+    fetch("http://localhost:8080/toggle-humidity", {
+      method: "POST",
+      body: JSON.stringify({
+        toggle: event.target.checked,
+      }),
+      headers: {
+        ["Content-Type"]: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then(console.log)
+      .catch(console.error);
   }, []);
 
   const onTemperatureCheckChange = useCallback((event: SwitchEvent) => {
-    console.log("Temperature check:", event.target.checked);
+    fetch("http://localhost:8080/toggle-temperature", {
+      method: "POST",
+      body: JSON.stringify({
+        toggle: event.target.checked,
+      }),
+      headers: {
+        ["Content-Type"]: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then(console.log)
+      .catch(console.error);
   }, []);
 
   const onSwitchClick = useCallback((event: MouseEvent) => {
@@ -116,46 +154,50 @@ const Home: NextPage = () => {
     setIsTimeIntervalModalOpen(false);
   }, []);
 
+  const onTimeIntervalChange = useCallback(
+    (event: ChangeEvent<FormElement>) => {
+      setTimeInterval(event.target.value);
+    },
+    []
+  );
+
   const onIntervalSubmit = useCallback(() => {
     fetch("http://localhost:8080/configure-interval", {
       method: "POST",
       body: JSON.stringify({
-        interval: "10",
+        interval: timeInterval,
       }),
+      headers: {
+        ["Content-Type"]: "application/json",
+      },
     })
       .then((response) => response.json())
       .then(console.log)
       .catch(console.error);
 
     closeConfigureIntervalModal();
-  }, [closeConfigureIntervalModal]);
+  }, [closeConfigureIntervalModal, timeInterval]);
 
   useEffect(() => {
     const getData = () => {
-      fetch("http://localhost:8080/actualData")
+      fetch("http://localhost:8080/current-data")
         .then((response) => response.json())
         .then((formattedResponse) =>
-          console.log({
+          setCurrentData({
             temperature: formattedResponse[0],
             humidity: formattedResponse[1],
-            minutesLastIrrigate: formattedResponse[2],
+            mins: formattedResponse[2],
           })
         )
         .catch(console.error);
     };
 
-    getData();
-  }, []);
-
-  useEffect(() => {
-    const getData = () => {
-      fetch("http://localhost:8080/time")
-        .then((response) => response.json())
-        .then((formattedResponse) => console.log({ formattedResponse }))
-        .catch(console.error);
-    };
-
-    getData();
+    if (currentData) {
+      setTimeout(getData, 60000);
+    } else {
+      getData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -170,7 +212,7 @@ const Home: NextPage = () => {
         <Container
           display="flex"
           justify="flex-end"
-          css={{ width: "100%", paddingRight: "17rem" }}
+          css={{ width: "100%", paddingRight: "10rem" }}
         >
           <Button
             color="secondary"
@@ -197,7 +239,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              {humidity} %
+              {currentData?.humidity} %
             </Text>
             <Text
               css={{
@@ -214,7 +256,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              {temperature} °C
+              {currentData?.temperature} °C
             </Text>
             <Text
               css={{
@@ -231,7 +273,7 @@ const Home: NextPage = () => {
                 textAlign: "center",
               }}
             >
-              {minutesLastIrrigate} mins
+              {currentData?.mins} mins
             </Text>
             <Text
               css={{
@@ -433,6 +475,8 @@ const Home: NextPage = () => {
                 placeholder="5"
                 type="number"
                 labelRight="mins"
+                value={timeInterval}
+                onChange={onTimeIntervalChange}
               />
             </Container>
           </Modal.Body>
